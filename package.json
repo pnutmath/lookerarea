@@ -1,0 +1,18 @@
+{
+  "name": "lookerarea",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "mkdir-dist": "mkdir dist",
+    "build": "uglifyjs --compress --mangle -- index.js >> ./dist/lookerarea.min.js && concat -o ./dist/lookerarea.min.js node_modules/d3/dist/d3.min.js ./dist/lookerarea.min.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "concat": "^1.0.3",
+    "d3": "^6.7.0",
+    "uglify-js": "^3.13.5"
+  }
+}
