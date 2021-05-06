@@ -43,7 +43,11 @@ const visObject = {
     details,
     doneRendering
   ) {
-    console.log(data, element, config, queryResponse, details);
+    console.log('data', data);
+    console.log('element', element);
+    console.log('config', config);
+    console.log('queryResponse', queryResponse);
+    console.log('details', details);
 
     // const width = element.clientWidth;
     // const height = element.clientHeight;
