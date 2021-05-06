@@ -28,7 +28,7 @@ const visObject = {
    * data is passed to it.
    **/
   create: function (element, config) {
-    element.innerHTML = '<h1>Loading area graph...</h1>';
+    element.innerHTML = '<h1>Ready to render!</h1>';
   },
 
   /**
@@ -43,19 +43,14 @@ const visObject = {
     details,
     doneRendering
   ) {
-    // const width = element.clientWidth;
-    // const height = element.clientHeight;
-    const dimensions = queryResponse.fields.dimension_like;
-    const measure = queryResponse.fields.measure_like[0];
-
     console.log(data, element, config, queryResponse, details);
 
-    const svg = d3
-      .select('#vis')
-      .append('svg')
-      .attr('height', 300)
-      .attr('width', 600);
+    // const width = element.clientWidth;
+    // const height = element.clientHeight;
+    // const dimensions = queryResponse.fields.dimension_like;
+    // const measure = queryResponse.fields.measure_like[0];
 
+    // set the dimensions and margins of the graph
     let elem = document.getElementById('vis');
     console.log(elem);
     var list = document.getElementById('vis'); // Get the <ul> element with id="myList"
@@ -63,19 +58,18 @@ const visObject = {
     if (list.childNodes.length > 1) {
       return false;
     }
-
-    data.forEach(function (d) {
-      // variable number of dimensions
-      const path = [];
-      for (const dim of dimensions) {
-        if (d[dim.name].value === null && !config.show_null_points) break;
-        path.push(d[dim.name].value + '');
-      }
-      path.forEach(function (p, i) {
-        if (i === path.length - 1) return;
-        console.log(p, i);
-      });
-    });
+    // data.forEach(function (d) {
+    //     // variable number of dimensions
+    //     const path = [];
+    //     for (const dim of dimensions) {
+    //       if (d[dim.name].value === null && !config.show_null_points) break;
+    //       path.push(d[dim.name].value + '');
+    //     }
+    //     path.forEach(function (p, i) {
+    //       if (i === path.length - 1) return;
+    //       console.log(p, i);
+    //     });
+    //   });
 
     data = [
       {
@@ -108,23 +102,19 @@ const visObject = {
       },
     ];
 
+    const svg = d3
+      .select('#vis')
+      .append('svg')
+      .attr('height', 300)
+      .attr('width', 600);
     const strokeWidth = 1.5;
     const margin = { top: 0, bottom: 20, left: 30, right: 20 };
-
     const chart = svg
       .append('g')
       .attr('transform', `translate(${margin.left},0)`);
-
-    // set the dimensions and margins of the graph
-    // var margin = { top: 20, right: 20, bottom: 30, left: 40 },
-    // width = 960 - margin.left - margin.right,
-    // height = 500 - margin.top - margin.bottom;
-
     const width =
       +svg.attr('width') - margin.left - margin.right - strokeWidth * 2;
-
     const height = +svg.attr('height') - margin.top - margin.bottom;
-
     const grp = chart
       .append('g')
       .attr(
@@ -133,15 +123,14 @@ const visObject = {
       );
 
     // Create scales
-    const xScale = d3
-      .scaleLinear()
-      .range([0, width])
-      .domain(d3.extent(data, (dataPoint) => dataPoint.year));
-
     const yScale = d3
       .scaleLinear()
       .range([height, 0])
       .domain([0, d3.max(data, (dataPoint) => dataPoint.popularity)]);
+    const xScale = d3
+      .scaleLinear()
+      .range([0, width])
+      .domain(d3.extent(data, (dataPoint) => dataPoint.year));
 
     const area = d3
       .area()
