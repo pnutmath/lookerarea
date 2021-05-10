@@ -78,7 +78,8 @@ const visObject = {
           element.innerHTML = `<h1>Max (${measure.name}): ${max}</h1>`;
         }
         dataaaaa.push({
-          name: path.slice(i, i + 1)[0],
+          name: dataaaaa.length + 1,
+          pathname: path.slice(i, i + 1)[0],
           value: +d[measure.name].value,
         });
       });
@@ -140,7 +141,11 @@ const visObject = {
       .append('g')
       .attr('transform', `translate(0,${height})`)
       .call(
-        d3.axisBottom(xScale).ticks(dataaaaa.length).tickFormat(d3.format(''))
+        d3
+          .axisBottom(xScale)
+          // .ticks(dataaaaa.length)
+          .tickValues(dataaaaa.map((d) => d.name))
+        // .tickFormat(d3.format(''))
       );
 
     // Add the Y Axis
