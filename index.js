@@ -70,8 +70,8 @@ const visObject = {
           element.innerHTML = `<h1>Max (${measure.name}): ${max}</h1>`;
         }
         chartdata.push({
-          name: chartdata.length + 1,
-          pathname: path.slice(i, i + 1)[0],
+          index: chartdata.length + 1,
+          name: path.slice(i, i + 1)[0],
           value: +d[measure.name].value,
         });
       });
@@ -96,45 +96,40 @@ const visObject = {
     var x = d3
       .scaleBand()
       .range([0, width])
-      .domain(
-        chartdata.map(function (d) {
-          return d.pathname;
-        })
-      )
+      .domain(chartdata.map((item) => item.name))
       .padding(0.2);
-      
+
     svg
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
-      .call(d3.axisBottom(x))
-      .selectAll('text')
-      .attr('transform', 'translate(-10,0)rotate(-45)')
-      .style('text-anchor', 'end');
+      .call(d3.axisBottom(x));
 
     // Add Y axis
     var y = d3
       .scaleLinear()
-      .domain([0, d3.max(chartdata, (dataPoint) => dataPoint.value)])
+      .domain([0, d3.max(chartdata, (item) => item.value)])
       .range([height, 0]);
     svg.append('g').call(d3.axisLeft(y));
 
-    // Bars
+    // Area
     svg
-      .selectAll('mybar')
-      .data(chartdata)
-      .enter()
-      .append('rect')
-      .attr('x', function (d) {
-        return x(d.pathname);
-      })
-      .attr('y', function (d) {
-        return y(d.value);
-      })
-      .attr('width', x.bandwidth())
-      .attr('height', function (d) {
-        return height - y(d.value);
-      })
-      .attr('fill', '#69b3a2');
+      .append('path')
+      .datum(data)
+      .attr('fill', '#cce5df')
+      .attr('stroke', '#69b3a2')
+      .attr('stroke-width', 1.5)
+      .attr(
+        'd',
+        d3
+          .area()
+          .x(function (d) {
+            return x(d.index);
+          })
+          .y0(y(0))
+          .y1(function (d) {
+            return y(d.value);
+          })
+      );
 
     doneRendering();
   },
