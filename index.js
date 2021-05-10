@@ -5,7 +5,7 @@
  *  - Example Visualizations - https://github.com/looker/custom_visualizations_v2/tree/master/src/examples
  **/
 
- const visObject = {
+const visObject = {
   /**
    * Configuration options for your visualization. In Looker, these show up in the vis editor
    * panel but here, you can just manually set your default values in the code.
@@ -51,11 +51,8 @@
     const dimensions = queryResponse.fields.dimension_like;
     const measure = queryResponse.fields.measure_like[0];
 
-
     // const width = element.clientWidth;
     // const height = element.clientHeight;
-    // const dimensions = queryResponse.fields.dimension_like;
-    // const measure = queryResponse.fields.measure_like[0];
 
     // set the dimensions and margins of the graph
     let elem = document.getElementById('vis');
@@ -64,20 +61,8 @@
     if (list.childNodes.length > 1) {
       return false;
     }
-    // data.forEach(function (d) {
-    //     // variable number of dimensions
-    //     const path = [];
-    //     for (const dim of dimensions) {
-    //       if (d[dim.name].value === null && !config.show_null_points) break;
-    //       path.push(d[dim.name].value + '');
-    //     }
-    //     path.forEach(function (p, i) {
-    //       if (i === path.length - 1) return;
-    //       console.log(p, i);
-    //     });
-    //   });
 
-    dataaaaa = [];
+    const dataaaaa = [];
 
     let max = 0;
     data.forEach(function (d) {
@@ -88,41 +73,14 @@
         path.push(d[dim.name].value + '');
       }
       path.forEach(function (p, i) {
-
         if (max < +d[measure.name].value) {
           max = +d[measure.name].value;
-          element.innerHTML = `<h1>${max}</h1>`;
+          element.innerHTML = `<h1>Max (${measure.name}): ${max}</h1>`;
         }
-
         dataaaaa.push({
-          x_axis: dataaaaa.length +1 ,
-          y_axis: +d[measure.name].value,
+          name: path.slice(i, i + 1)[0],
+          value: +d[measure.name].value,
         });
-
-        //   if (i === path.length - 1) return;
-        //   const source =
-        //     path.slice(i, i + 1)[0] + i + `len:${path.slice(i, i + 1)[0].length}`;
-        //   const target =
-        //     path.slice(i + 1, i + 2)[0] +
-        //     (i + 1) +
-        //     `len:${path.slice(i + 1, i + 2)[0].length}`;
-        //   nodes.add(source);
-        //   nodes.add(target);
-        //   // Setup drill links
-        //   const drillLinks = [];
-        //   for (const key in d) {
-        //     if (d[key].links) {
-        //       d[key].links.forEach((link) => {
-        //         drillLinks.push(link);
-        //       });
-        //     }
-        //   }
-        //   graph.links.push({
-        //     drillLinks: drillLinks,
-        //     source: source,
-        //     target: target,
-        //     value: +d[measure.name].value,
-        //   });
       });
     });
 
@@ -149,21 +107,21 @@
       );
 
     // Create scales
-    const yScale = d3
-      .scaleLinear()
-      .range([height, 0])
-      .domain([0, d3.max(dataaaaa, (dataPoint) => dataPoint.y_axis)]);
-
     const xScale = d3
       .scaleLinear()
       .range([0, width])
-      .domain(d3.extent(dataaaaa, (dataPoint) => dataPoint.x_axis));
+      .domain(d3.extent(dataaaaa, (dataPoint) => dataPoint.name));
+
+    const yScale = d3
+      .scaleLinear()
+      .range([height, 0])
+      .domain([0, d3.max(dataaaaa, (dataPoint) => dataPoint.value)]);
 
     const area = d3
       .area()
-      .x((dataPoint) => xScale(dataPoint.x_axis))
+      .x((dataPoint) => xScale(dataPoint.name))
       .y0(height)
-      .y1((dataPoint) => yScale(dataPoint.y_axis));
+      .y1((dataPoint) => yScale(dataPoint.value));
 
     // Add area
     grp
@@ -192,8 +150,8 @@
       .call(d3.axisLeft(yScale));
 
     // Add total value to the tooltip
-    const totalSum = dataaaaa.reduce((total, dp) => +total + +dp.y_axis, 0);
-    d3.select('.tooltip .totalValue').text(totalSum);
+    // const totalSum = dataaaaa.reduce((total, dp) => +total + +dp.value, 0);
+    // d3.select('.tooltip .totalValue').text(totalSum);
 
     // Add gradient defs to svg
     const defs = svg.append('defs');
