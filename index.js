@@ -54,15 +54,7 @@ const visObject = {
     // const width = element.clientWidth;
     // const height = element.clientHeight;
 
-    // set the dimensions and margins of the graph
-    let elem = document.getElementById('vis');
-    var list = document.getElementById('vis'); // Get the <ul> element with id="myList"
-    //list.removeChild(list.childNodes[0]);
-    if (list.childNodes.length > 1) {
-      return false;
-    }
-
-    const dataaaaa = [];
+    const chartdata = [];
 
     let max = 0;
     data.forEach(function (d) {
@@ -77,117 +69,72 @@ const visObject = {
           max = +d[measure.name].value;
           element.innerHTML = `<h1>Max (${measure.name}): ${max}</h1>`;
         }
-        dataaaaa.push({
-          name: dataaaaa.length + 1,
+        chartdata.push({
+          name: chartdata.length + 1,
           pathname: path.slice(i, i + 1)[0],
           value: +d[measure.name].value,
         });
       });
     });
 
-    console.log('final data', dataaaaa);
+    console.log('final chart data', chartdata);
 
-    const svg = d3
+    // set the dimensions and margins of the graph
+    var margin = { top: 30, right: 30, bottom: 70, left: 60 },
+      width = 460 - margin.left - margin.right,
+      height = 400 - margin.top - margin.bottom;
+
+    var svg = d3
       .select('#vis')
       .append('svg')
-      .attr('height', 300)
-      .attr('width', 600);
-    const strokeWidth = 1.5;
-    const margin = { top: 0, bottom: 20, left: 30, right: 20 };
-    const chart = svg
+      .attr('width', width + margin.left + margin.right)
+      .attr('height', height + margin.top + margin.bottom)
       .append('g')
-      .attr('transform', `translate(${margin.left},0)`);
-    const width =
-      +svg.attr('width') - margin.left - margin.right - strokeWidth * 2;
-    const height = +svg.attr('height') - margin.top - margin.bottom;
-    const grp = chart
-      .append('g')
-      .attr(
-        'transform',
-        `translate(-${margin.left - strokeWidth},-${margin.top})`
-      );
+      .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
-    // Create scales
-    const xScale = d3
-      .scaleLinear()
+    // X axis
+    var x = d3
+      .scaleBand()
       .range([0, width])
-      .domain(d3.extent(dataaaaa, (dataPoint) => dataPoint.name));
+      .domain(
+        chartdata.map(function (d) {
+          return d.pathname;
+        })
+      )
+      .padding(0.2);
+      
+    svg
+      .append('g')
+      .attr('transform', 'translate(0,' + height + ')')
+      .call(d3.axisBottom(x))
+      .selectAll('text')
+      .attr('transform', 'translate(-10,0)rotate(-45)')
+      .style('text-anchor', 'end');
 
-    const yScale = d3
+    // Add Y axis
+    var y = d3
       .scaleLinear()
-      .range([height, 0])
-      .domain([0, d3.max(dataaaaa, (dataPoint) => dataPoint.value)]);
+      .domain([0, d3.max(chartdata, (dataPoint) => dataPoint.value)])
+      .range([height, 0]);
+    svg.append('g').call(d3.axisLeft(y));
 
-    const area = d3
-      .area()
-      .x((dataPoint) => xScale(dataPoint.name))
-      .y0(height)
-      .y1((dataPoint) => yScale(dataPoint.value));
-
-    // Add area
-    grp
-      .append('path')
-      .attr('transform', `translate(${margin.left},0)`)
-      .datum(dataaaaa)
-      .style('fill', 'url(#svgGradient)')
-      .attr('stroke', 'steelblue')
-      .attr('stroke-linejoin', 'round')
-      .attr('stroke-linecap', 'round')
-      .attr('stroke-width', strokeWidth)
-      .attr('d', area);
-
-    // Add the X Axis
-    chart
-      .append('g')
-      .attr('transform', `translate(0,${height})`)
-      .call(
-        d3
-          .axisBottom(xScale)
-          // .ticks(dataaaaa.length)
-          .tickValues(dataaaaa.map((d) => d.name))
-        // .tickFormat(d3.format(''))
-      );
-
-    // Add the Y Axis
-    chart
-      .append('g')
-      .attr('transform', `translate(0, 0)`)
-      .call(d3.axisLeft(yScale));
-
-    // Add total value to the tooltip
-    // const totalSum = dataaaaa.reduce((total, dp) => +total + +dp.value, 0);
-    // d3.select('.tooltip .totalValue').text(totalSum);
-
-    // Add gradient defs to svg
-    const defs = svg.append('defs');
-
-    const gradient = defs.append('linearGradient').attr('id', 'svgGradient');
-    const gradientResetPercentage = '50%';
-
-    gradient
-      .append('stop')
-      .attr('class', 'start')
-      .attr('offset', gradientResetPercentage)
-      .attr('stop-color', 'lightblue');
-
-    gradient
-      .append('stop')
-      .attr('class', 'start')
-      .attr('offset', gradientResetPercentage)
-      .attr('stop-color', 'darkblue');
-
-    gradient
-      .append('stop')
-      .attr('class', 'end')
-      .attr('offset', gradientResetPercentage)
-      .attr('stop-color', 'darkblue')
-      .attr('stop-opacity', 1);
-
-    gradient
-      .append('stop')
-      .attr('class', 'end')
-      .attr('offset', gradientResetPercentage)
-      .attr('stop-color', 'lightblue');
+    // Bars
+    svg
+      .selectAll('mybar')
+      .data(chartdata)
+      .enter()
+      .append('rect')
+      .attr('x', function (d) {
+        return x(d.pathname);
+      })
+      .attr('y', function (d) {
+        return y(d.value);
+      })
+      .attr('width', x.bandwidth())
+      .attr('height', function (d) {
+        return height - y(d.value);
+      })
+      .attr('fill', '#69b3a2');
 
     doneRendering();
   },
