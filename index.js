@@ -1,10 +1,3 @@
-/**
- * Welcome to the Looker Visualization Builder! Please refer to the following resources
- * to help you write your visualization:
- *  - API Documentation - https://github.com/looker/custom_visualizations_v2/blob/master/docs/api_reference.md
- *  - Example Visualizations - https://github.com/looker/custom_visualizations_v2/tree/master/src/examples
- **/
-
 const visObject = {
   /**
    * Configuration options for your visualization. In Looker, these show up in the vis editor
@@ -67,10 +60,10 @@ const visObject = {
       path.forEach(function (p, i) {
         if (max < +d[measure.name].value) {
           max = +d[measure.name].value;
-          element.innerHTML = `<h1>Max (${measure.name}): ${max}</h1>`;
+          element.innerHTML = `<h1>Max : ${max}</h1>`;
         }
         chartdata.push({
-          index: chartdata.length + 1,
+          index: chartdata.length,
           name: path.slice(i, i + 1)[0],
           value: +d[measure.name].value,
         });
@@ -96,13 +89,14 @@ const visObject = {
     var x = d3
       .scaleBand()
       .range([0, width])
-      .domain(chartdata.map((item) => item.name))
-      .padding(0.2);
+      .domain(chartdata.map((item) => item.index))
+      .padding(1);
 
+    const xAxisTickFormat = (number) => chartdata[number].name;
     svg
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
-      .call(d3.axisBottom(x));
+      .call(d3.axisBottom(x).tickFormat(xAxisTickFormat));
 
     // Add Y axis
     var y = d3
@@ -114,7 +108,7 @@ const visObject = {
     // Area
     svg
       .append('path')
-      .datum(data)
+      .datum(chartdata)
       .attr('fill', '#cce5df')
       .attr('stroke', '#69b3a2')
       .attr('stroke-width', 1.5)
@@ -122,13 +116,9 @@ const visObject = {
         'd',
         d3
           .area()
-          .x(function (d) {
-            return x(d.index);
-          })
+          .x((d) => x(d.index))
           .y0(y(0))
-          .y1(function (d) {
-            return y(d.value);
-          })
+          .y1((d) => y(d.value))
       );
 
     doneRendering();
