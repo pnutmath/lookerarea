@@ -44,9 +44,6 @@ const visObject = {
     const dimensions = queryResponse.fields.dimension_like;
     const measure = queryResponse.fields.measure_like[0];
 
-    // const width = element.clientWidth;
-    // const height = element.clientHeight;
-
     const chartdata = [];
 
     let max = 0;
@@ -73,11 +70,11 @@ const visObject = {
     console.log('final chart data', chartdata);
 
     // set the dimensions and margins of the graph
-    var margin = { top: 30, right: 30, bottom: 70, left: 60 },
-      width = 460 - margin.left - margin.right,
-      height = 400 - margin.top - margin.bottom;
+    const margin = { top: 30, right: 30, bottom: 70, left: 60 };
+    const width = element.clientWidth;
+    const height = element.clientHeight;
 
-    var svg = d3
+    const svg = d3
       .select('#vis')
       .append('svg')
       .attr('width', width + margin.left + margin.right)
@@ -86,7 +83,7 @@ const visObject = {
       .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
 
     // X axis
-    var x = d3
+    const x = d3
       .scaleBand()
       .range([0, width])
       .domain(chartdata.map((item) => item.index))
@@ -97,11 +94,12 @@ const visObject = {
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
       .call(d3.axisBottom(x).tickFormat(xAxisTickFormat))
+      .selectAll('text')
       .attr('transform', 'translate(-10,10)rotate(-45)')
       .style('text-anchor', 'end');
 
     // Add Y axis
-    var y = d3
+    const y = d3
       .scaleLinear()
       .domain([0, d3.max(chartdata, (item) => item.value)])
       .range([height, 0]);
