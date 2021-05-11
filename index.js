@@ -96,7 +96,9 @@ const visObject = {
     svg
       .append('g')
       .attr('transform', 'translate(0,' + height + ')')
-      .call(d3.axisBottom(x).tickFormat(xAxisTickFormat));
+      .call(d3.axisBottom(x).tickFormat(xAxisTickFormat))
+      .attr('transform', 'translate(-10,10)rotate(-45)')
+      .style('text-anchor', 'end');
 
     // Add Y axis
     var y = d3
